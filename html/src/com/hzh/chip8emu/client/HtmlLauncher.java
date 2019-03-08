@@ -3,14 +3,15 @@ package com.hzh.chip8emu.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.hzh.chip8emu.Chip8emu;
+import com.hzh.chip8emu.Chip8Emu;
+import com.hzh.chip8emu.Chip8VM;
 
 public class HtmlLauncher extends GwtApplication {
 
         // USE THIS CODE FOR A FIXED SIZE APPLICATION
         @Override
         public GwtApplicationConfiguration getConfig () {
-                return new GwtApplicationConfiguration(480, 320);
+                return new GwtApplicationConfiguration(640, 320);
         }
         // END CODE FOR FIXED SIZE APPLICATION
 
@@ -46,6 +47,7 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new Chip8emu();
+                Chip8VM chip8VM = new Chip8VM();
+                return new Chip8Emu(640, chip8VM);
         }
 }
