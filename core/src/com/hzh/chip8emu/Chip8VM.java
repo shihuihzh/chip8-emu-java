@@ -1,5 +1,7 @@
 package com.hzh.chip8emu;
 
+import com.badlogic.gdx.audio.Sound;
+
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -51,7 +53,7 @@ public class Chip8VM {
 
     public void cycle() {
         // Fetch opcode
-        opcode = (short) (memory[pc] << 8 | (memory[pc + 1] & 0xff));
+        opcode = (short) (memory[pc] << 8 | (memory[pc + 1] & 0xFF));
 
         // Process opcode
         switch(opcode & 0xF000)
@@ -138,7 +140,7 @@ public class Chip8VM {
                         pc += 2;
                         break;
 
-                    case 0x0004: // 0x8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't					
+                    case 0x0004: // 0x8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't
                         if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8]))
                             V[0xF] = 1; //carry
                         else
@@ -220,7 +222,7 @@ public class Chip8VM {
                     pixel = memory[I + yline];
                     for(int xline = 0; xline < 8; xline++)
                     {
-                        if((pixel & (0x80 >> xline)) != 0)
+                        if((pixel & (0x80 >> xline)) != 0 && (x + xline + ((y + yline) * 64)) < Const.V_RAM_SIZE)
                         {
                             if(gfx[(x + xline + ((y + yline) * 64))] == 1)
                             {
@@ -326,10 +328,8 @@ public class Chip8VM {
                         break;
 
                     case 0x0065: // FX65: Fills V0 to VX with values from memory starting at address I					
-                        for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
-                            V[i] = memory[I + i];
 
-                        System.arraycopy(memory, I + 1, V, 0, ((opcode & 0x0F00) >> 8));
+                        System.arraycopy(memory, I, V, 0, ((opcode & 0x0F00) >> 8));
                         // On the original interpreter, when the operation is done, I = I + X + 1.
                         I += ((opcode & 0x0F00) >> 8) + 1;
                         pc += 2;
@@ -368,4 +368,14 @@ public class Chip8VM {
     public byte[] getGfx() {
         return gfx;
     }
+
+    public byte[] getKey() {
+        return key;
+    }
+
+    public static void main(String[] args) {
+        byte i = -128;
+        System.out.println(i == (i & 0xff));
+    }
+
 }

@@ -1,5 +1,10 @@
 package com.hzh.chip8emu;
 
+import javafx.scene.input.KeyCode;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class Const {
 
     public static final int RES_WIDTH = 64;
@@ -11,6 +16,7 @@ public class Const {
     public static final int REGISTER_COUNT = 16;
     public static final int START_ADDRESS = 0x200;
     public static final String PIXEL_PNG = "pixel.png";
+
 
 
     public static final byte[] CHIP8_FONTSET = {
