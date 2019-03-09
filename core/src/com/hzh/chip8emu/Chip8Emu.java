@@ -15,6 +15,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.hzh.chip8emu.Const.*;
 
@@ -33,6 +36,7 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
     private static Sound beep;
     private ShapeRenderer shapeRenderer;
     private  Map<Integer, Integer> keyMap;
+    private ExecutorService service = Executors.newSingleThreadExecutor();
 
     public Chip8Emu(float width, Chip8VM vm) {
         this.width = width;
@@ -81,6 +85,18 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
         vm.load(rom);
         this.vRAM = vm.getGfx();
         this.key = vm.getKey();
+
+        service.execute(() -> {
+            while (true) {
+                // run next
+                vm.cycle();
+                try {
+                    TimeUnit.MILLISECONDS.sleep(3);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -89,10 +105,6 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // run next
-        vm.cycle();
-        vm.cycle();
-        vm.cycle();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < this.vRAM.length; i++) {
