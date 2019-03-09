@@ -4,10 +4,13 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +28,10 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
     private byte[] key;
     private Chip8VM vm;
 
-    private Texture img;
-    private Sprite sprite;
-    private SpriteBatch batch;
     private int fps;
     private long lastTime;
+    private static Sound beep;
+    private ShapeRenderer shapeRenderer;
     private  Map<Integer, Integer> keyMap;
 
     public Chip8Emu(float width, Chip8VM vm) {
@@ -39,15 +41,19 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
         this.vm = vm;
     }
 
+    public static void beep() {
+        beep.play(1.0f);
+    }
+
     @Override
     public void create() {
-        img = new Texture(PIXEL_PNG);
-        batch = new SpriteBatch();
-        sprite = new Sprite(img, 0, 0, img.getWidth() * this.pixelSize, img.getHeight() * this.pixelSize);
         intKeyMap();
         Gdx.input.setInputProcessor(this);
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setColor(Color.WHITE);
 
-        startEmu(Gdx.files.internal("roms/games/Brix [Andreas Gustafsson, 1990].ch8").readBytes());
+        beep = Gdx.audio.newSound(Gdx.files.internal("beep.mp3"));
+        startEmu(Gdx.files.internal("roms/games/Pong 2 (Pong hack) [David Winter, 1997].ch8").readBytes());
         lastTime = System.currentTimeMillis();
     }
 
@@ -75,7 +81,6 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
         vm.load(rom);
         this.vRAM = vm.getGfx();
         this.key = vm.getKey();
-
     }
 
     @Override
@@ -89,17 +94,15 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
         vm.cycle();
         vm.cycle();
 
-
-        batch.begin();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < this.vRAM.length; i++) {
             if (this.vRAM[i] == 1) {
                 float x = i % RES_WIDTH;
                 float y = RES_HEIGHT - 1 - (i / RES_WIDTH);
-                sprite.setPosition(x * pixelSize, y * pixelSize);
-                sprite.draw(batch);
+                shapeRenderer.rect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
             }
         }
-        batch.end();
+        shapeRenderer.end();
 
         fps++;
         long newTime = System.currentTimeMillis();
@@ -112,8 +115,7 @@ public class Chip8Emu extends ApplicationAdapter implements InputProcessor  {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        img.dispose();
+        shapeRenderer.dispose();
     }
 
     @Override

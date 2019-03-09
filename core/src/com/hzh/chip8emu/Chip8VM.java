@@ -350,8 +350,10 @@ public class Chip8VM {
 
         if(soundTimer > 0)
         {
-            if(soundTimer == 1)
+            if(soundTimer == 1) {
                 System.out.println("BEEP!");
+                Chip8Emu.beep();
+            }
             --soundTimer;
         }
     }
